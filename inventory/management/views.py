@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, reverse
 from django.http import JsonResponse
 from django.views.generic import TemplateView, ListView
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
@@ -11,7 +11,7 @@ from django.db import IntegrityError
 from datetime import datetime, date
 from management.models import Brand, Device
 from management.utilities import log
-from management.extra_views import search
+from management.extra_views import search, create_brand, add_device
 from management.decorators import permission_required
 
 ### CLASSES ###
@@ -103,55 +103,13 @@ class DashboardView(LoginRequiredMixin, ListView):
         else:
             return self.model.objects.all()
 
-    @permission_required("management.add_brand")
     def post(self, request, *args, **kwargs):
         brand_name = request.POST.get('brand')
 
         if not "serial" in request.POST:
-            try:
-                Brand.objects.create(
-                    brand=brand_name.upper()
-                )
-            except IntegrityError:
-                messages.error(request, '"{}" Already Exists!'.format(brand_name))
-            except Exception as e:
-                log("Exception caught on 'DashboardView' on adding Brand.", str(e))
-                messages.error(request, "Something went wrong.")
-            else:
-                messages.success(request, '"{}" Added!'.format(brand_name))
+            create_brand(request, brand_name)
         else:
-            serial_number = request.POST.get('serial')
-            status = request.POST.get('status')
-            location = request.POST.get('location')
-            model = request.POST.get('model')
-            manufactured_date = request.POST.get('manufacture')
-            remarks = request.POST.get('remarks')
-
-            try:
-                with atomic():
-                    brand = Brand.objects.get(brand = brand_name)
-
-                    device_model, created = Device.objects.get_or_create(
-                        brand = brand,
-                        serial_number = serial_number,
-                        model = model,
-                        status = bool(status),
-                        location = location.upper(),
-                        manufactured_date = manufactured_date
-                    )
-
-                    device_model.remarks = remarks
-                    device_model.save()
-            except Brand.DoesNotExist:
-                messages.error(request, '"{}" Brand Does Not Exist!'.format(brand_name))
-            except Exception as e:
-                log("Exception caught on 'DashboardView' on adding Device.", str(e))
-                messages.error(request, 'Something went wrong.')
-            else:
-                if created:
-                    messages.success(request, 'Device "{}" added.'.format(model))
-                else:
-                    messages.error(request, '{} {} ({}) Already Exists!'.format(brand_name, model, serial_number))
+            add_device(request, brand_name)
 
         return redirect(reverse("management:dashboard"))
         # return self.get(request, *args, **kwargs)
@@ -246,6 +204,9 @@ class RegisterView(TemplateView):
 
                 user_model.save()
 
+                group = Group.objects.get(name="User")
+                group.user_set.add(user_model)
+
                 return JsonResponse({
                     'status': True,
                     'title':'User {} Registered.'.format(username),
@@ -267,6 +228,7 @@ class DeviceEditView(LoginRequiredMixin, TemplateView):
     """ Edit page. """ 
     template_name = 'edit.html'
 
+    @permission_required("management.change_device")
     def post(self, request, *args, **kwargs):
         pk=request.POST.get("pk")
         brand_name = request.POST.get('brand')

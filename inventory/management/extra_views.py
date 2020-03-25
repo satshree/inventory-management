@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect, reverse
 from django.http import JsonResponse, HttpResponseRedirect
 from django.db import IntegrityError
+from django.db.transaction import atomic
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from management.models import Brand, Device
 from management.decorators import permission_required
+from management.utilities import log
 
 ### FUNCTIONS ###
 def log_user_out(request):
@@ -29,6 +32,20 @@ def delete_user(request):
         'msg':'Your Profile Has Been Deleted.'
     })
 
+@permission_required('management.add_brand')
+def create_brand(request, brand_name):
+    try:
+        Brand.objects.create(
+            brand=brand_name.upper()
+        )
+    except IntegrityError:
+        messages.error(request, '"{}" Already Exists!'.format(brand_name))
+    except Exception as e:
+        log("Exception caught on 'DashboardView' on adding Brand.", str(e))
+        messages.error(request, "Something went wrong.")
+    else:
+        messages.success(request, '"{}" Added!'.format(brand_name))
+
 @permission_required('management.delete_brand')
 def delete_brand(request):
     """ Remove the given brand. """
@@ -50,6 +67,41 @@ def delete_brand(request):
             'icon':'error',
             'msg':'"{}" Does Not Exist!'.format(brand_name)
         })
+
+@permission_required("management.add_device")
+def add_device(request, brand_name):
+    serial_number = request.POST.get('serial')
+    status = request.POST.get('status')
+    location = request.POST.get('location')
+    model = request.POST.get('model')
+    manufactured_date = request.POST.get('manufacture')
+    remarks = request.POST.get('remarks')
+
+    try:
+        with atomic():
+            brand = Brand.objects.get(brand = brand_name)
+
+            device_model, created = Device.objects.get_or_create(
+                brand = brand,
+                serial_number = serial_number,
+                model = model,
+                status = bool(status),
+                location = location.upper(),
+                manufactured_date = manufactured_date
+            )
+
+            device_model.remarks = remarks
+            device_model.save()
+    except Brand.DoesNotExist:
+        messages.error(request, '"{}" Brand Does Not Exist!'.format(brand_name))
+    except Exception as e:
+        log("Exception caught on 'DashboardView' on adding Device.", str(e))
+        messages.error(request, 'Something went wrong.')
+    else:
+        if created:
+            messages.success(request, 'Device "{}" added.'.format(model))
+        else:
+            messages.error(request, '{} {} ({}) Already Exists!'.format(brand_name, model, serial_number))
 
 @permission_required('management.delete_device')
 def delete_device(request):
