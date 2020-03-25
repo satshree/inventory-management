@@ -1,21 +1,24 @@
-# README #
+# About #
 
+A Very Basic Inventory Management System made for Mercantile Communications, Nepal  
 
-### What is this repository for? ###
+## Requirements ##
 
-A Very Basic Inventory Management System
+1. Python 3.*  
+2. pip3 and pipenv
 
-### How do I get set up? ###
+## How do I get set up? ##
 
-Made with Django
+This app is made with Django. Follow these steps to run this app,  
 
-### Contribution guidelines ###
+1. Run 'pipenv update && pipenv shell' to install the dependencies in a virtual environment.  
+2. Change directory to 'management'. (command: 'cd management')  
+3. Run 'python manage.py migrate' to migrate database. (Only for first time.)  
+4. Run 'python manage.py createsuperuser' to create a super user. (If there is no super user.)  
+5. Run 'python manage.py runserver' to run the app.  
 
-* Writing tests
-* Code review
-* Other guidelines
+### Authors ###
 
-### Who do I talk to? ###
-
-Aashirwad Shrestha
-Satshree Shrestha
+Aashirwad Shrestha  
+Satshree Shrestha  
+&#127475
