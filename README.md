@@ -21,4 +21,3 @@ This app is made with Django. Follow these steps to run this app,
 
 Aashirwad Shrestha  
 Satshree Shrestha  
-&#127475
