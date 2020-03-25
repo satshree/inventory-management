@@ -15,11 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .settings import DEBUG
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('', include('management.urls')),
 ]
 
-if DEBUG:
-    urlpatterns.append(path('admin/', admin.site.urls))
+# UNCOMMENT TO HIDE ADMIN PAGE WHEN DEBUG IS SET FALSE
+# from .settings import DEBUG
+# if DEBUG:
+#     urlpatterns.append(path('admin/', admin.site.urls))

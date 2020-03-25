@@ -1,15 +1,18 @@
 from django.shortcuts import render, redirect, reverse
+from django.http import JsonResponse
 from django.views.generic import TemplateView, ListView
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
+from django.db.transaction import atomic
 from django.db.models import Count
 from django.db import IntegrityError
 from datetime import datetime, date
 from management.models import Brand, Device
 from management.utilities import log
 from management.extra_views import search
+from management.decorators import permission_required
 
 ### CLASSES ###
 class LogInView(TemplateView):
@@ -100,6 +103,7 @@ class DashboardView(LoginRequiredMixin, ListView):
         else:
             return self.model.objects.all()
 
+    @permission_required("management.add_brand")
     def post(self, request, *args, **kwargs):
         brand_name = request.POST.get('brand')
 
@@ -124,19 +128,20 @@ class DashboardView(LoginRequiredMixin, ListView):
             remarks = request.POST.get('remarks')
 
             try:
-                brand = Brand.objects.get(brand = brand_name)
+                with atomic():
+                    brand = Brand.objects.get(brand = brand_name)
 
-                device_model, created = Device.objects.get_or_create(
-                    brand = brand,
-                    serial_number = serial_number,
-                    model = model,
-                    status = bool(status),
-                    location = location.upper(),
-                    manufactured_date = manufactured_date
-                )
+                    device_model, created = Device.objects.get_or_create(
+                        brand = brand,
+                        serial_number = serial_number,
+                        model = model,
+                        status = bool(status),
+                        location = location.upper(),
+                        manufactured_date = manufactured_date
+                    )
 
-                device_model.remarks = remarks
-                device_model.save()
+                    device_model.remarks = remarks
+                    device_model.save()
             except Brand.DoesNotExist:
                 messages.error(request, '"{}" Brand Does Not Exist!'.format(brand_name))
             except Exception as e:
@@ -183,17 +188,18 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             return self.get(request, *args, **kwargs)
 
         try:
-            user_model = User.objects.get(username=username)
+            with atomic():
+                user_model = User.objects.get(username=username)
 
-            user_model.first_name = firstname
-            user_model.last_name = lastname
-            user_model.email = email
-            user_model.username = username
+                user_model.first_name = firstname
+                user_model.last_name = lastname
+                user_model.email = email
+                user_model.username = username
 
-            if password:
-                user_model.set_password(password)
-        
-            user_model.save()
+                if password:
+                    user_model.set_password(password)
+            
+                user_model.save()
         except Exception as e:
             log("Exception caught on 'Profile View'.", str(e))
             messages.error(request, 'Something went wrong')
@@ -211,7 +217,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
 class RegisterView(TemplateView):
     """ Register Page. """
-    template_name = "newuser.html"
+    template_name = "registration/newuser.html"
 
     def post(self, request, *args, **kwargs):
         first_name = request.POST.get('first_name') 
@@ -228,22 +234,23 @@ class RegisterView(TemplateView):
             })
 
         try:
-            user_model = User.objects.create_user(
-                first_name = first_name, 
-                last_name = last_name,
-                username = username,
-                email = email,
-                password = password,
-                is_active=False
-            )
+            with atomic():
+                user_model = User.objects.create_user(
+                    first_name = first_name, 
+                    last_name = last_name,
+                    username = username,
+                    email = email,
+                    password = password,
+                    is_active=False
+                )
 
-            user_model.save()
+                user_model.save()
 
-            return JsonResponse({
-                'status': True,
-                'title':'User {} Registered.'.format(username),
-                'msg':'You can sign in once super user approves your profile.'
-            })
+                return JsonResponse({
+                    'status': True,
+                    'title':'User {} Registered.'.format(username),
+                    'msg':'You can sign in once super user approves your profile.'
+                })
         except IntegrityError:
             return JsonResponse({
                 'status':False,
@@ -280,19 +287,19 @@ class DeviceEditView(LoginRequiredMixin, TemplateView):
             return self.get(request, *args, **kwargs)
 
         try:
-            brand = Brand.objects.get(brand=brand_name)
-            device = Device.objects.get(pk=int(pk))
+            with atomic():
+                brand = Brand.objects.get(brand=brand_name)
+                device = Device.objects.get(pk=int(pk))
 
-            device.brand = brand
-            device.serial_number = serial_number
-            device.status = bool(status)
-            device.location = location.upper()
-            device.model = model
-            device.manufactured_date = manufactured_date
-            device.remarks = remarks
+                device.brand = brand
+                device.serial_number = serial_number
+                device.status = bool(status)
+                device.location = location.upper()
+                device.model = model
+                device.manufactured_date = manufactured_date
+                device.remarks = remarks
 
-            device.save()
-
+                device.save()
         except Exception as e:
             log("Exception caught on 'DeviceEditView'.", str(e))
             messages.error(request, "Something went wrong.")
