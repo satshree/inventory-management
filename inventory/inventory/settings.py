@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'p)yitkv+7p96)chf-rp@=31c6w2tue3_5i)2z+qyxvz#^ckg%2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -106,7 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kathmandu'
 
 USE_I18N = True
 
@@ -132,10 +132,3 @@ try:
     from .local_settings import *
 except:
     pass
-
-# print('')
-# print('base dir', BASE_DIR)
-# print('static url', STATIC_URL)
-# print('static files', STATICFILES_DIR)
-# print('static root', STATIC_ROOT)
-# print('')
