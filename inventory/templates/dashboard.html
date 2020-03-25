@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block extra_css %}
+
+    <style>
+        .table-container {
+            padding: 1%;
+            margin: 1% 3% 3% 3%;
+            font-size: 14px;
+        }
+
+        .table-container thead {
+            font-weight: bold;
+        }
+
+        .table-container a {
+            cursor: pointer;
+        }
+
+        .ignore-css{all:unset;}
+
+        .select-style {
+            width: 100%;
+            padding: 5px;
+            background-color: #f1f1f1;
+        }
+
+        .float{
+            position:fixed;
+            top:270px;
+            right:60px;
+            color:#FFF;
+        }
+
+        input::placeholder {
+            color: grey;
+            opacity: 1;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div style="margin-top: 3%;">
+    <div class="container input-field w3-row">
+        <form method="get">
+            {% csrf_token %}
+            <div class="w3-col s10">
+                <input type="text" name="q" placeholder="Search (Brand/Model/Serial Number/Location/Manufactured Date:'YYYY/MM/DD')" id="search" style="width:100%;" required> 
+            </div>
+            <div class="w3-col s2" style="padding:15px;">
+                <button type="submit" class="waves-effect waves-light btn w3-indigo" > Search </button>
+            </div>
+        </form>
+    </div>
+    <div class="w3-center">
+        <div class="w3-card-2 w3-center w3-white table-container" style="margin-left: 2%;">
+            {% if devices %}
+            <table class="w3-striped highlight w3-centered responsive-table w3-bordered w3-border">
+                <thead>
+                    <tr class="w3-sand">
+                        <td> S.N </td>
+                        <td> Brand </td>
+                        <td> Model </td>
+                        <td> Serial No. </td>
+                        <td> Status </td>
+                        <td> Location </td>
+                        <td> Manufactured Date </td>
+                        <td> Remarks </td>
+                        <td> Action </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for device in devices %}
+                    <tr>
+                        <td> {{ forloop.counter }} </td>
+                        <td> {{ device.brand }} </td>
+                        <td> {{ device.model }} </td>
+                        <td> {{ device.serial_number }} </td>
+                        <td> {{ device.get_status_display }} </td>
+                        <td> {{ device.location }} </td>
+                        <td> {{ device.manufactured_date }} </td>
+                        <td> {{ device.remarks|truncatechars:30}} </td> 
+                        {% comment %}<td> {{ device.remarks }} </td>{% endcomment %}
+                        <td> 
+                            <a class="delete" data-id-brand="{{ device.brand }}" data-id-sn="{{ device.serial_number }}" data-id-model="{{ device.model }}" style="color:red;"> 
+                                <span class="fas fa-trash-alt" style="margin-right: 8px;"></span> 
+                            </a> 
+                            <a style="color:black;" href="{% url 'management:edit-device' pk=device.pk %}"> 
+                                <span class="fa fa-pencil-square-o"></span> 
+                            </a> 
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <hr>
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" style="margin-right:10px;">&laquo; First</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" style="margin-left:10px;">Last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+            {% else %}
+            No Devices ...
+            {% endif %}
+        </div> 
+    </div>
+</div>
+
+
+<div class="modal" id="brand">
+    <div class="modal-content">
+        <h6> Add Brand </h6>
+        <hr>
+        <form method="post">
+            {% csrf_token %}
+            <label> Brand Name: </label>
+            <input type="text" placeholder="Enter Brand Name" name="brand" required> <br> <br>
+            <input type="submit" value="Add" class="waves-effect waves-light btn w3-indigo w3-right">
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="brandDelete">
+    <div class="modal-content">
+        <h6> Delete Brand </h6>
+        <hr>
+        <form id="brandDeleteForm">
+            <label> Brand Name: </label>
+            <select class="ignore-css select-style" name="device-brand" id="delete-brand">
+                <option value="" disabled selected> Choose a Brand. </option>
+                {% for brand in brands %}
+                <option value="{{brand.brand}}">{{brand.brand}}</option>
+                {% endfor %}
+            </select> <br> <br>
+            <input type="submit" value="Delete" class="waves-effect waves-light btn red darken-2 w3-right">
+        </form>
+    </div>
+</div>
+
+
+<div class="modal" id="device">
+    <div class="modal-content">
+        <h6> Add Device </h6>
+        <hr>
+        <form method="post">
+            {% csrf_token %}
+            <label> Brand Name: </label>
+            <select class="ignore-css select-style" name="brand" id="device-brand" required>
+                <option value="" disabled selected> Choose a Brand. </option>
+                {% for brand in brands %}
+                <option value="{{brand.brand}}">{{brand.brand}}</option>
+                {% endfor %}
+            </select> <br> <br>
+            <label> Serial Number </label>
+            <input type="text" placeholder="Enter Device Serial Number" name="serial" required> 
+
+            <br>
+            <label> Status: </label>
+            <select class="ignore-css select-style" name="status" id="status">
+                <option value="" disabled selected> Choose device status. </option>
+                <option value = "True"> Working </option>
+                <option value = ""> Not Working </option>
+            </select> <br> <br> 
+
+            <label> Location: </label>
+            <input type="text" placeholder="Enter Device Location" name="location" required> 
+
+            <label> Model: </label>
+            <input type="text" placeholder="Enter Model Name" name="model" required> 
+
+            <label> Manufactured Date: </label>
+            <input type="date" name="manufacture" id="date" required> 
+
+            <label> Remarks: </label>
+            <input type="text" placeholder="Enter Remarks" name="remarks"> 
+            
+            <br> <br>
+            <input type="submit" value="Add" class="waves-effect waves-light btn w3-indigo w3-right">
+        </form>
+    </div>
+</div>
+
+<div class="float">
+    <a class="waves-effect waves-light btn w3-indigo modal-trigger" href="#device" id="deviceModal" style="padding-left:15px; padding-right:15px;"> <span class="fas fa-plus"></span> Device </a>
+</div>
+{% endblock %}
+
+{% block buttons %}
+<a class="waves-effect waves-light btn w3-indigo modal-trigger" href="#brand"  style="margin-right: 5px; margin-bottom:10px;"> <span class="fas fa-plus"></span> Brand </a>
+<a class="waves-effect waves-light btn red darken-2 modal-trigger" href="#brandDelete" style="margin-right: 5px; margin-bottom:10px;"> <span class="fas fa-trash-alt"></span> Brand </a>
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+    $(document).ready(function(){
+        $('.delete').click(function(event){
+            event.preventDefault()
+
+            var csrftoken = $('input[name=csrfmiddlewaretoken').val()
+            var brand = $(this).attr('data-id-brand')
+            var serial_number = $(this).attr('data-id-sn')
+            var model = $(this).attr('data-id-model')
+
+            var info = {
+                'brand':brand,
+                'serial_number':serial_number,
+                'model':model
+            }
+            
+            var alert_message = "Are You Sure You Want To Delete '" + brand + " " + model + " " + serial_number + "' ?"
+            swal({
+                icon: "warning",
+                title: alert_message,
+                text:'This action cannot be undone!',
+                buttons: true,
+                dangerMode: true,
+            }).then((value) => {
+                if (value) {
+                    $.ajax({
+                        method:'POST',
+                        url:"{% url 'management:delete-device' %}",
+                        headers:{'X-CSRFToken':csrftoken},
+                        data:info,
+                        success:function(data){
+                            swal({
+                                icon:data.icon,
+                                text:data.msg
+                            }).then((data) => {
+                                refresh()
+                            })
+                        }
+                    })
+                }
+            })
+        })
+
+        $('#brandDeleteForm').submit(function(event){
+            event.preventDefault()
+
+            var csrftoken = $('input[name=csrfmiddlewaretoken').val()
+            var brand = $('#delete-brand').val()
+            var info = {
+                'brand':brand
+            }
+
+            if (brand == null) {
+                swal({
+                    icon:'error',
+                    title:'Brand not chosen',
+                    text:'Please choose a brand before proceeding.'
+                })
+            } else {
+                var alert_message = "Are You Sure You Want To Delete Brand '" + brand + "' ?"
+                swal({
+                    icon: "warning",
+                    title: alert_message,
+                    text:'All the devices of this brand will also be deleted!\nThis action cannot be undone!',
+                    buttons: true,
+                    dangerMode: true,
+                }).then((value) => {
+                    if (value) {
+                        $.ajax({
+                            method:'POST',
+                            url:"{% url 'management:delete-brand' %}",
+                            headers:{'X-CSRFToken':csrftoken},
+                            data:info,
+                            success:function(data){
+                                swal({
+                                    icon:data.icon,
+                                    text:data.msg
+                                }).then((data) => {
+                                    refresh()
+                                })
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    })
+</script>
+
+{% endblock %}

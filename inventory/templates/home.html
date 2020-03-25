@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .self-box {
+        padding:2%;
+    }
+
+    .self-box-2 {
+        margin-top:2%;
+        padding:2%;
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" integrity="sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E=" crossorigin="anonymous" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2/dist/Chart.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="w3-container" style="margin-top: 3%; margin-bottom: 3%;">
+    <div class="w3-row">
+        <div class="w3-col s8" style="margin-right:15px;">
+            <div class="w3-card-2 w3-white self-box">
+                <div class="w3-center"> <h6> Number of Devices by Brand </h6> </div>
+                <div class="chart-container" style="position: relative;"> <canvas id="chartByBrand" width="110" height="40"></canvas> </div>
+            </div>
+
+            <div class="w3-row">
+                <div class="w3-col s6 w3-card-2 w3-white self-box-2" style="margin-right:15px;">
+                    <div class="w3-center"> <h6> Number of Devices by Location </h6> </div>
+                    <div class="chart-container" style="position: relative;"> <canvas id="chartByLocation" width="50" height="40"></canvas> </div>
+                </div>
+                <div class="w3-rest w3-card-2 w3-white self-box-2">
+                    <div class="w3-center"> <h6> Device Working Status </h6> </div>
+                    <div class="chart-container" style="position: relative;"> <canvas id="chartByStatus" width="50" height="40"></canvas> </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w3-rest w3-card-2 w3-white self-box" style="padding-bottom: 4%;">
+            <div class="w3-container w3-center">
+                <h5> Total number of devices </h5> <hr> <p> {{ total }} </p>
+                <hr>
+                <table class="w3-table w3-striped w3-bordered">
+                    <h6> Number of devices by brand </h6>
+                    <thead class="w3-sand">
+                        <th> Brand </th>
+                        <th> Devices </th>
+                    </thead>
+                    <tbody>
+                    {% for each in brands%}
+                        <tr>
+                            <td> {{ each.brand }} </td>
+                            <td> {{ each.total }} </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <hr>
+                <table class="w3-table w3-striped w3-bordered">
+                    <h6> Number of devices by location </h6>
+                    <thead class="w3-sand">
+                        <th> Location </th>
+                        <th> Devices </th>
+                    </thead>
+                    <tbody>
+                        {% for each in location %}
+                        <tr>
+                            <td> {{ each.location }} </td>
+                            <td> {{ each.total }} </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <hr>
+                <table class="w3-table w3-striped w3-bordered">
+                    <h6> Number of working devices </h6>
+                    <thead class="w3-sand">
+                        <th> Working </th>
+                        <th> Not Working </th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td> {{ working }} </td>
+                            <td> {{ not_working }} </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %} {% block buttons %}
+<a class="waves-effect waves-light btn w3-indigo" href="/dashboard/" style="margin-right: 5px; margin-bottom:10px;"> <span class="fa fa-list-ul"></span> Dashboard </a>
+{% endblock %} {% endcomment %}
+
+{% block extra_js %}
+<script>
+    var ctx = document.getElementById('chartByBrand').getContext('2d');
+    var chartByBrand = new Chart(ctx, {
+        type: 'horizontalBar',
+        responsive:true,
+        data: {
+            labels: {{ brands_label|safe }},
+            datasets: [{
+                label: 'Devices', 
+                data: {{ brands_data|safe }},
+                backgroundColor: [
+                {% for each in brands_data %}
+                    '#00b8e6',
+                {% endfor %}
+                ],
+                {% comment %} borderColor: [
+                    // 'rgba(255, 99, 132, 1)',
+                    // 'rgba(54, 162, 235, 1)',
+                    // 'rgba(255, 206, 86, 1)',
+                    // 'rgba(75, 192, 192, 1)',
+                    // 'rgba(153, 102, 255, 1)',
+                    // 'rgba(255, 159, 64, 1)'
+                ], 
+                borderWidth: 1 {% endcomment %}
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+
+    var ctx2 = document.getElementById('chartByLocation').getContext('2d');
+    var chartByLocation = new Chart(ctx2, {
+        type: 'bar',
+        responsive:true,
+        data: {
+            labels: {{ location_label|safe }},
+            datasets: [{
+                label: 'Devices',
+                data: {{ location_data|safe }},
+                backgroundColor: [
+                {% for each in location_data %}
+                    '#00e600',
+                {% endfor %}
+                ],
+                borderColor: [
+                    // 'rgba(255, 99, 132, 1)',
+                    // 'rgba(54, 162, 235, 1)',
+                    // 'rgba(255, 206, 86, 1)',
+                    // 'rgba(75, 192, 192, 1)',
+                    // 'rgba(153, 102, 255, 1)',
+                    // 'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+
+    var ctx3 = document.getElementById('chartByStatus').getContext('2d');
+    var chartByStatus = new Chart(ctx3, {
+        type: 'doughnut',
+        responsive:true,
+        data: {
+            labels: ['Not Working', 'Working'],
+            datasets: [{
+                label: '',
+                data: {{ status_data|safe}},
+                backgroundColor: [
+                    'Red',
+                    'Pink'
+                ],
+                {% comment %} borderColor: [
+                    // 'rgba(255, 99, 132, 1)',
+                    // 'rgba(54, 162, 235, 1)',
+                    // 'rgba(255, 206, 86, 1)',
+                    // 'rgba(75, 192, 192, 1)',
+                    // 'rgba(153, 102, 255, 1)',
+                    // 'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1 {% endcomment %}
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+</script>
+
+{% endblock %}

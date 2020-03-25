@@ -1,0 +1,107 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Register | MCNOC Inventory</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+	<link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+	<script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <style>
+        #registerForm label {
+            float:left;
+        }
+    </style>
+</head>
+<body style="padding-top:2%;">
+	<div class="container">
+		<div class="w3-container w3-center">
+			<a href="/"> <img src="{% static 'img/logo.jpg' %}" class="logo w3-center"> </a> <br> 
+		</div>
+		<div class="w3-container w3-center">
+			<div class="w3-container" style="padding:25%; padding-top:0%;">
+				<form id='registerForm'>
+                    {% csrf_token %}
+					<img src="{% static '/img/avatar.png' %}" class="avatar">
+					<h5>REGISTER</h5> <br> 
+                    <label> First Name </label>
+                    <input type="text" placeholder="Your First Name" name="firstname" id="firstname" required>
+                    <label> Last Name </label>
+                    <input type="text" placeholder="Your Last Name" name="lastname" id="lastname" required>
+                    <label> Email </label>
+                    <input type="email" placeholder="Your Email Address" name="email" id="email" required>
+                    <label> Username </label>
+                    <input type="text" placeholder="Your Username" name="username" id="username" required>
+                    <label> Password </label>
+                    <input type="password" placeholder="Your Password" name="password" id="password" required>
+                    <label> Re-enter Password </label>
+                    <input type="password" placeholder="Re-enter Password" name="re_password" id="re_password" required>
+                    <br> <br>
+					<input type="submit" class="waves-effect waves-light submit-btn w3-center" value="Register" id="register">
+					<br>
+				</form>
+			</div>	
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('#register').click(function(event){
+				event.preventDefault()
+
+                var csrftoken = $('input[name=csrfmiddlewaretoken').val()
+				var firstname = $('#firstname').val()
+				var lastname = $('#lastname').val()
+				var username = $('#username').val()
+				var email = $('#email').val()
+				var password = $('#password').val()
+				var re_password = $('#re_password').val()
+
+				var info = {
+					'first_name':firstname,
+					'last_name':lastname,
+					'email':email,
+					'username':username,
+					'password':password
+				}
+
+                if (password != re_password) {
+                    swal({
+                        icon:'error',
+                        text:'Password validation failed.'
+                    })
+                } else {
+                    $.ajax(
+                        {
+                            method:'POST',
+                            url:'',
+                            headers:{'X-CSRFToken':csrftoken},
+                            data:info,
+                            success:function(data) {
+                                if (data.status){
+                                    swal({
+                                        icon:'success',
+                                        title:data.title,
+                                        text:data.msg
+                                    }).then((value) => {
+                                        window.location = '/'
+                                    })
+                                }
+                                else {
+                                    swal({
+                                        icon:'error',
+                                        text:data.msg
+                                    })
+                                } 
+                            }
+                        }
+                    )
+                }
+			})
+		})
+	</script>
+</body>
+</html>

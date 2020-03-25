@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sign In | MCNOC Inventory</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+	<link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	<style>
+		.messages {
+            list-style-type: none;
+            text-align:center;
+            color:white;
+            padding-inline-start:0;
+        }
+
+        .messages .error {
+            background-color:#b30000;
+            padding:20px;
+        }
+
+        .messages .success {
+            background-color:#248f24;
+            padding:20px;
+        }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="w3-container w3-center">
+			<img src="{% static 'img/logo.jpg' %}" class="logo w3-center">
+			{% if messages %}
+			<br> <br>
+			<div style="padding:0 300px;">
+				<ul class="messages">
+					{% for message in messages %}
+					<li class="{{message.tags}}">{{message}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+			{% endif %}
+		</div>
+		<div class="container2">
+			<div class="img">
+				<img src="{% static '/img/img.svg' %}"> 
+			</div>
+			<div class="login-container">
+				<form method="post">
+					{% csrf_token %}
+					<img src="{% static '/img/avatar.png' %}" class="avatar">
+					<h2>SIGN IN</h2> <br> 
+					<div class="input-div one focus">
+						<div class="i">
+							<img src="{% static '/img/user.svg' %}">
+						</div>
+						<div>
+							<input class="input" type="text" placeholder="Username" name="username" id="username" required>
+						</div>
+					</div>
+					<div class="input-div two focus">
+						<div class="i">
+							<img src="{% static '/img/lock.svg' %}">
+						</div>
+						<div>
+							<input class="input" type="Password" placeholder="Password" name="password" id="password" required>
+						</div>
+					</div>
+					<input type="submit" class="submit-btn" value="Sign In">
+					<br>
+					<a href="{% url 'management:new-user' %}">Not a User? Register Here</a>
+				</form>
+			</div>	
+		</div>
+	</div>
+</body>
+</html>

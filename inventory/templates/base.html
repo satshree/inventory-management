@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> {% block title %} {% endblock %} | MCNOC Inventory </title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <script src="https://kit.fontawesome.com/2859ea166a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <style>
+        .messages {
+            list-style-type: none;
+            text-align:center;
+            color:white;
+            padding-inline-start:0;
+        }
+
+        .messages .error {
+            background-color:#b30000;
+            padding:20px;
+        }
+
+        .messages .success {
+            background-color:#248f24;
+            padding:20px;
+        }
+    </style>
+    {% block extra_css %}
+
+    {% endblock %}
+</head>
+<body class="w3-light-gray">
+
+    <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
+        <button class="w3-bar-item w3-button w3-large"
+        onclick="w3_close()">Close &times;</button>
+        <a href="{% url 'management:profile' %}" class="w3-bar-item w3-button"> <span class="fas fa-user" style="margin-right: 3px;"> </span> Profile </a>
+        <a href="{% url 'management:overview' %}" class="w3-bar-item w3-button"> <span class="fas fa-chart-line" style="margin-right: 3px;"> </span> Overview </a>
+        <a href="{% url 'management:dashboard' %}" class="w3-bar-item w3-button"> <span class="fa fa-list-ul" style="margin-right: 3px;"> </span> Dashboard </a>
+        <a href="{% url 'management:logout' %}" class="w3-bar-item w3-button"> <span class="fa fa-power-off" style="margin-right: 3px;"> </span> Sign Out </a>
+    </div>
+
+    <div id="main">
+        <div class="w3-white">
+            <button id="openNav" class="w3-button w3-white w3-xlarge" onclick="w3_open()">&#9776;</button>
+            
+            <div class="w3-container w3-center">
+                <a href="/overview/"> <img src="{% static 'img/logo.jpg' %}" class="logo" width=20%> </a>
+                <hr>
+                <div style="margin-top: -1%;">
+                    <div class="w3-col s4 w3-center" style="padding-top: 1%;"> {% block buttons %} {% endblock %}</div>
+                    <div class="w3-col s4 w3-center"> <h5> {{ current }} </h5> </div>
+                    <div class="w3-col s4 w3-center"> 
+                        <a href="{% url 'management:profile' %}">
+                            <p style = "font-style: italic; font-size: small;"> 
+                                <img src="{% static '/img/avatar.png' %}" class="avatar" width="10%"> 
+                                {{ user }} <small>(
+                                {% if user.is_superuser %}
+                                Super User
+                                {% else %}
+                                {{ user.groups.all.0 }}
+                                {% endif %})</small>
+                            </p> 
+                        </a>
+                    </div>
+                </div>
+            </div> 
+        </div>
+
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{message.tags}}">{{message}}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% block content %}
+
+        {% endblock %}
+    </div>
+
+    <script>
+        let toastMessage = document.getElementsByClassName("messages")
+
+        if (toastMessage) {
+            setTimeout(() => $(".messages").hide(), 5000)
+        }
+
+        function refresh() {
+            location.reload(true)
+        }
+
+        function redirect(here) {
+            window.location.href = here;
+        }
+
+        function w3_open() {
+            document.getElementById("main").style.marginLeft = "15%";
+            document.getElementById("mySidebar").style.width = "15%";
+            document.getElementById("mySidebar").style.display = "block";
+            document.getElementById("openNav").style.display = 'none';
+        }
+
+        function w3_close() {
+            document.getElementById("main").style.marginLeft = "0%";
+            document.getElementById("mySidebar").style.display = "none";
+            document.getElementById("openNav").style.display = "inline-block";
+        }
+
+        $('.modal').modal();
+    </script>
+    {% block extra_js %}
+
+    {% endblock %}
+</body>
+{% comment %} <footer class="w3-container w3-center w3-white w3-card-2" style="padding:2%; bottom: 0; overflow: hidden; left: 0; width: 100%;"> {% endcomment %}
+{% comment %} <footer class="w3-container w3-center w3-white w3-card-2" style="padding:2%;">
+    &copy; 2019 
+    Mercantile Communication Network Operation Control <br>
+    <hr>
+    Made by Aashirwad Shrestha and Satshree Shrestha
+</footer> {% endcomment %}
+</html>

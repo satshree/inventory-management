@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block extra_css %}
+
+    <style>
+        .ignore-css{all:unset;}
+
+        .select-style {
+            width: 100%;
+            padding: 5px;
+            background-color: #f1f1f1;
+        }
+
+        .box-container {
+            padding-top:2%;
+            padding-left:4%;
+            padding-right:4%;
+            padding-bottom:4%;
+            margin-left:25%;
+            margin-right:25%;
+            margin-top:2%;
+            margin-bottom:10%;
+        }
+        #editForm label {
+            float:left;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="w3-container w3-center">
+        <div class="w3-card-2 w3-white box-container">
+            <div class="w3-left">
+                <h5> Edit Device </h5>
+            </div>
+            <br> <br> <hr> 
+            <div>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="pk" value="{{device.pk}}">
+                    <label> Brand Name: </label>
+                    <select class="ignore-css select-style" name="brand" id="brand" required>
+                        {% for brand in brands %}
+                        <option value="{{brand.brand}}" {% if device.brand == brand %}selected{% endif %}>{{brand.brand}}</option>
+                        {% endfor %}
+                    </select> <br> <br>
+
+                    <label> Model: </label>
+                    <input type="text" placeholder="Enter Model Name" name="model" value="{{ device.model }}" required>  <br> <br>
+
+                    <label> Serial Number </label>
+                    <input type="text" placeholder="Enter Device Serial Number" name="serial_number" value="{{ device.serial_number }}" > <br> <br>
+
+                    <label> Status: </label>
+                    <select class="ignore-css select-style" name="status" id="status">
+                        <option value = "True" {% if device.status %}selected{% endif %}> Working </option>
+                        <option value = "" {% if not device.status %}selected {% endif %}> Not Working </option>
+                    </select> <br> <br>
+
+                    <label> Location: </label>
+                    <input type="text" placeholder="Enter Device Location" name="location" value="{{ device.location }}" required> <br> <br>
+
+                    <label> Manufactured Date: </label>
+                    <input type="date" class="input-field validate" name="manufacture" id="date" value="{{ date }}" required> <br> <br>
+
+                    <label> Remarks: </label>
+                    <input type="text" placeholder="Enter Remarks" value="{{ device.remarks }}" name="remarks"> <br> <br>
+
+                    <input type="submit" value="Save Changes" class="waves-effect waves-light btn w3-indigo">
+                    <a id="cancel"> <button class="waves-effect waves-light btn red darken-2"> Cancel </button> </a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block buttons %}
+<a class="waves-effect waves-light btn w3-indigo" href="{% url 'management:dashboard' %}" style="margin-right: 5px; margin-bottom:10px;"> <span class="fa fa-arrow-left"></span> Back </a>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+
+        $('#cancel').click(function(event){
+            event.preventDefault()
+
+            swal({
+                icon:'warning',
+                text:'Do You Wish To Discard Changes?',
+                buttons:true,
+                dangerMode:true
+            }).then((value) => {
+                if (value) {
+                    redirect("{% url 'management:dashboard' %}")
+                }
+            })
+        })
+    </script>
+{% endblock %}

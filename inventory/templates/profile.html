@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+{{ user }} {{ title }}
+{% endblock %}
+
+{% block extra_css %}
+
+    <style>
+        .profile-container {
+            padding: 5%;
+            margin:3% 20% 1%;
+        }
+
+        .profile-container table {
+            padding:5%;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="w3-container w3-card-2 profile-container w3-white">
+    <h5> {{ user.first_name }} {{ user.last_name}} </h5>
+    
+    <table class="w3-table w3-bordered centered">
+        <tr>
+            <td> </td>
+            <td> </td>
+        </tr>
+        <tr>
+            <td> Username: </td>
+            <td> {{ user.username }} </td>
+        </tr>
+        <tr>
+            <td> Email: </td>
+            <td> {{ user.email }} </td>
+        </tr>
+        <tr>
+            <td> User Type: </td>
+            {% if user.is_superuser %}
+                <td> Super User </td>
+            {% else %}
+                <td> {{ user.groups.all.0 }} </td>
+            {% endif %}
+    </table>
+
+    <br> <br>
+    {% if user.is_superuser %}
+        <button class="waves-effect waves-light btn w3-right red darken-2 disabled" id="delete"> Delete Your Profile </button>
+    {% else %}
+        <button class="waves-effect waves-light btn w3-right red darken-2" id="delete"> Delete Your Profile </button>
+    {% endif %}
+    <button data-target="edit" class="waves-effect waves-light btn w3-indigo w3-right modal-trigger" style="margin-right:10px;"> Edit </button> <br>
+
+    {% if user.is_superuser %}
+        <br> <br>
+        <div class="w3-right" style="margin-bottom: -7%;">
+            <small class="w3-right"> Super User accounts can not be deleted. </small>
+        </div>
+    {% endif %}
+</div>
+
+
+<div class="modal" id="edit">
+    <div class="modal-content">
+        <h6> Edit your profile </h6>
+        <hr>
+        <form method="post">
+            {% csrf_token %}
+            <label> First Name: </label>
+            <input type="text" placeholder="Your First Name" name="firstname" value="{{ user.first_name }}" required> 
+            <label> Last Name: </label>
+            <input type="text" placeholder="Your Last Name" name="lastname" value="{{ user.last_name }}"required> 
+            <label> Username: </label>
+            <input type="text" placeholder="Your Username" name="username" value="{{ user.username }}" required> 
+            <label> Email: </label>
+            <input type="text" class="validate" placeholder="Your Email Address" name="email" value="{{ user.email }}" required> 
+            <label> New Password: </label>
+            <input type="password" placeholder="Leave it blank if you don't want to change password" name="password"> 
+            <label> Re-enter Password: </label>
+            <input type="password" placeholder="Re-enter Password" name="repassword"> <br> <br>
+            <input type="submit" value="Update" class="waves-effect waves-light btn w3-indigo w3-right">
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+    $(document).ready(function(){
+        $('#delete').click(function(event){
+            event.preventDefault()
+
+            var csrftoken = $('input[name=csrfmiddlewaretoken').val()
+            var username = {'username':'{{ user.username }}'}
+
+            swal({
+                icon: "warning",
+                title: "Are You Sure You Want To Delete Your Profile?",
+                text:"This action cannot be undone!",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((value) => {
+                if (value) {
+                    $.ajax({
+                        method:'POST',
+                        url:"{% url 'management:delete-user' %}",
+                        headers:{'X-CSRFToken':csrftoken},
+                        data:username,
+                        success:function(value){
+                            swal({
+                                text:value.msg
+                            }).then((value)=> {
+                                redirect("/")
+                            })
+                        }
+                    })
+                } 
+            });
+        })
+    })
+</script>
+
+{% endblock %}
