@@ -19,7 +19,7 @@ This app is made with Django. Follow these steps to run this app,
 6. Run 'python manage.py create-groups' to create user privileges. (Only for first time when setting up the app.)  
 7. Run 'python manage.py runserver' to run the app.  
 
-# DEBUG is set to 'False'. Create 'local_settings.py' where 'settings.py' is. Copy everything from 'sample_local_settings.py' and override DEBUG = True if needed. # 
+#### DEBUG is set to 'False'. Create 'local_settings.py' where 'settings.py' is. Copy everything from 'sample_local_settings.py' and override DEBUG = True if needed. #### 
 
 ## Authors ##
 
