@@ -30,6 +30,10 @@
             background-color:#248f24;
             padding:20px;
         }
+
+        .logo {
+            width: 15em;
+        }
     </style>
     {% block extra_css %}
 
@@ -51,7 +55,14 @@
             <button id="openNav" class="w3-button w3-white w3-xlarge" onclick="w3_open()">&#9776;</button>
             
             <div class="w3-container w3-center">
-                <a href="/overview/"> <img src="{% static 'img/logo.jpg' %}" class="logo" width=20%> </a>
+                <a href="/overview/"> 
+                    {% if company.logo_url %}
+                    <img src="{{company.logo_url}}" class="logo"> 
+                    {% else %}
+                    <img src="{% static 'img/default.png' %}" class="logo"> <br>
+                    {% if user.is_superuser %}<a href="/admin/management/company/" target="_blank"><small> Upload your company's logo from admin page. </small></a>{% endif %}
+                    {% endif %}
+                </a>
                 <hr>
                 <div style="margin-top: -1%;">
                     <div class="w3-col s4 w3-center" style="padding-top: 1%;"> {% block buttons %} {% endblock %}</div>

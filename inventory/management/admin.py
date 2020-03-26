@@ -1,11 +1,18 @@
 from django.contrib import admin
-from .models import Brand, Device
+from .models import Brand, Device, Company
 
 # Register your models here.
 
-admin.site.index_title = 'Mercantile Communication Network Operation Control (MCNOC) Inventory Management'
-admin.site.site_header = 'MCNOC Inventory Management Admin Page'
-admin.site.site_title = 'MCNOC Inventory Management'
+try:
+    company = Company.objects.first()
+    admin_header = company.name + " Inventory Management "
+except:
+    admin_header = "Inventory Management "
+
+
+admin.site.index_title = admin_header
+admin.site.site_header = admin_header + 'Admin Page'
+admin.site.site_title = admin_header
 
 class DeviceAdmin(admin.ModelAdmin):
     model = Device
@@ -31,5 +38,6 @@ class DeviceAdmin(admin.ModelAdmin):
         'status',
     )
 
+admin.site.register(Company)
 admin.site.register(Brand)
 admin.site.register(Device, DeviceAdmin)

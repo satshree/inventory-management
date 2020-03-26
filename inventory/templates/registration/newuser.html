@@ -15,12 +15,20 @@
         #registerForm label {
             float:left;
         }
+        .logo {
+            width: 15em;
+        }
     </style>
 </head>
 <body style="padding-top:2%;">
 	<div class="container">
 		<div class="w3-container w3-center">
-			<a href="/"> <img src="{% static 'img/logo.jpg' %}" class="logo w3-center"> </a> <br> 
+			<a href="/"> 
+            {% if company.logo_url %}
+            <img src="{{company.logo_url}}" class="logo"> 
+            {% else %}
+            <img src="{% static 'img/default.png' %}" class="logo">
+            {% endif %} </a> <br> 
 		</div>
 		<div class="w3-container w3-center">
 			<div class="w3-container" style="padding:25%; padding-top:0%;">

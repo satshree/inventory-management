@@ -20,8 +20,3 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('management.urls')),
 ]
-
-# UNCOMMENT TO HIDE ADMIN PAGE WHEN DEBUG IS SET FALSE
-# from .settings import DEBUG
-# if DEBUG:
-#     urlpatterns.append(path('admin/', admin.site.urls))

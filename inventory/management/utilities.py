@@ -6,7 +6,10 @@ def log(*args):
     """ Log Error. """
 
     file_path = os.path.join(settings.BASE_DIR, 'exception_log')
-    file_name = os.path.join(file_path, "Exception {}.txt".format(datetime.now().strftime("%Y %b. %d")))
+    file_name = os.path.join(file_path, "Exception {}.txt".format(datetime.now().strftime("%Y %b %d")))
+
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
 
     with open(file_name, "a") as file:
         file.write("")

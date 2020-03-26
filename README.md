@@ -1,6 +1,6 @@
 ## About ##
 
-A Very Basic Inventory Management System made for Mercantile Communications, Nepal.  
+A Device Inventory Management System. Keep track of your devices with this app in convinient way.   
 
 ## Requirements ##
 

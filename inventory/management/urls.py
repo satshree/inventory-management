@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.urls import path
 from inventory import settings
 from management import views, extra_views
+from django.conf.urls.static import static
+from django.conf import settings
 
 app_name='management'
 
@@ -24,3 +26,6 @@ urlpatterns = [
     path('delete-user/', login_required(extra_views.delete_user), name='delete-user'),
     ####
 ] 
+
+if settings.DEBUG:
+    urlpatterns.append(static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)[0])

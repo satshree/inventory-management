@@ -27,12 +27,19 @@
             background-color:#248f24;
             padding:20px;
         }
+		.logo {
+            width: 15em;
+        }
 	</style>
 </head>
 <body>
 	<div class="container">
 		<div class="w3-container w3-center">
-			<img src="{% static 'img/logo.jpg' %}" class="logo w3-center">
+			{% if company.logo_url %}
+            <img src="{{company.logo_url}}" class="logo w3-center"> 
+            {% else %}
+            <img src="{% static 'img/default.png' %}" class="logo w3-center">
+            {% endif %}
 			{% if messages %}
 			<br> <br>
 			<div style="padding:0 300px;">

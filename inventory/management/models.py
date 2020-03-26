@@ -1,7 +1,21 @@
 from django.db import models
 
 # Create your models here.
+class Company(models.Model):
+    name = models.CharField(max_length=200, null=True, blank=True)
+    logo = models.ImageField(upload_to="logo", null=True, blank=True)
 
+    class Meta:
+        verbose_name = "Company"
+        verbose_name_plural = "Company"
+    
+    def __str__(self):
+        return self.name
+    
+    @property
+    def logo_url(self):
+        return self.logo.url
+        
 class Brand(models.Model):
     brand = models.CharField(max_length=200, primary_key=True)
 
