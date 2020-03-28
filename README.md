@@ -19,6 +19,17 @@ This app is made with Django. Follow these steps to run this app,
 6. Run 'python manage.py create-groups' to create user privileges. (Only for first time when setting up the app.)  
 7. Run 'python manage.py runserver' to run the app.  
 
+Set your company info for first startup.  
+  
+1. After completing above steps, head into admin page in url "//your-hosted-url/admin".  
+2. Log In with superuser credentials and click on "Company".  
+3. Click on "Add Company" and set your company name and logo.  
+4. Everything is all set up, the app will run with all the default configuration. 
+
+Well, if you want to customize it, you can and make it the way you want it. Be sure to go through everything on how things work.  
+And if you are comfortable with Django framework, chances are you already know what changes to make to customize this app.  
+Open Source Really Is Fun!.
+
 #### DEBUG is set to 'False'. Create 'local_settings.py' where 'settings.py' is. Copy everything from 'sample_local_settings.py' and override DEBUG = True if needed. #### 
 
 ## Authors ##
